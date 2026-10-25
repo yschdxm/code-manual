@@ -2,7 +2,7 @@
 
 # Code Manual Skill
 
-A universal skill for AI coding assistants (Claude Code, etc.): generate a **self-updating single-file HTML code manual** with one command — file tree + per-file "purpose + implemented features" + search + lazily-loaded highlighted source per symbol. Re-run the script after every code change; it never goes stale.
+A universal skill for AI coding assistants (Claude Code, etc.): generate a **self-updating HTML code manual** with one command — file tree + per-file "purpose + implemented features" + search + full highlighted source per file. Double-click to open with no server; re-run the script after every code change; it never goes stale.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/yschdxm/code-manual)](https://github.com/yschdxm/code-manual/commits/master)
@@ -25,16 +25,14 @@ English · [中文](README.md)
 An installable agent skill for any project. Once installed, just tell the AI "create a code manual for this project" and it will:
 
 1. Write an **idempotent generator script** (`tool/gen_code_manual.py`) that extracts "what this file is" from file-header comments and "what it implements" from top-level symbols
-2. Produce a **single-file HTML** (`CODE-MANUAL.html` at the repo root): multi-level expandable file tree on the left, search on top (auto-expands ancestor directories of hits), detail panel on the right
-3. Add a "code ▾" toggle under each symbol — **lazily fetches the source by line span with lightweight syntax highlighting** (never embedded in the manual, so its size doesn't grow with the code; degrades to a direct source link when `file://` blocks fetch)
+2. Produce the manual at the repo root: `CODE-MANUAL.html` (multi-level expandable file tree on the left, search on top with auto-expanded hit paths, detail panel on the right) **plus** the sidecar source store `CODE-MANUAL.sources.js`
+3. The detail pane shows the file's role, its symbols **descriptions only**, and the **complete highlighted source** — loaded via `<script src>` dynamic linking, so double-click works under `file://` with no server
 4. Lock in the "re-run the script after every code change and commit the manual together with the code" discipline via **three redundant layers**: the generator's docstring + the project instruction file (CLAUDE.md/AGENTS.md) + persistent memory
-
-The process is distilled from real practice on the StoryForge project, including its security-review loop (JSON embed escaped against `</script>` injection; every HTML interpolation goes through `esc()`).
 
 ## Features
 
-- **Single file, works offline**: double-click to open, no external dependencies, no server
-- **Zero source embedding**: the manual stores only line-span pointers; source is loaded on demand
+- **Double-click, no server**: opens straight from disk — the source store is linked via `<script src>`, which works under `file://`
+- **HTML stays light**: full source lives in the sidecar `CODE-MANUAL.sources.js`, not in the manual body; both files are committed together
 - **Bilingual**: Chinese by default (`SKILL.md` + template `UI_LANG="zh"`); English copy at `SKILL.en.md` (renamed to the standard `SKILL.md` on install)
 - **Language-agnostic**: ships with a Python (`ast`) scanner; swap the scanner for other languages (the template comments include the Dart precedent)
 - **Safe**: source comments cannot inject scripts through the manual (JSON `<` escaping + `esc()` on all interpolations)
@@ -67,8 +65,7 @@ python tool/gen_code_manual.py
 
 - **Left**: multi-level expandable file tree (top level expanded by default), line count next to each file
 - **Top**: search box filtering by file name / path / comments / symbol names; hits auto-expand their ancestor directories; clearing restores the default fold
-- **Right**: for the selected file — "What this file is" (file-header comment) and "Functions implemented" (all top-level symbols + one line each)
-- **Under each symbol**: "code ▾" lazily loads that symbol's source line span, colorizing keywords/strings/comments/numbers
+- **Right**: for the selected file — "What this file is" (file-header comment), "Functions implemented" (all top-level symbols + one line each, descriptions only), then the **complete source** of the file, colorizing keywords/strings/comments/numbers
 - Scrollbars and other details match the dark theme
 
 ## Repository layout
@@ -86,7 +83,7 @@ code-manual/
 
 ## Development & testing
 
-The template passes a bilingual self-check (actually generates both languages against a mini fixture, asserting JSON escaping, the src/ln contract, lazy loading, and scrollbar styling); the check script and fixtures live in the local dev directory and are not published with the repo.
+The template passes a bilingual self-check (actually generates both languages against a mini fixture, asserting JSON escaping, the data contract, the sidecar source store, and scrollbar styling); the check script and fixtures live in the local dev directory and are not published with the repo.
 
 ## 💝 Support development
 

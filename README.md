@@ -2,7 +2,7 @@
 
 # Code Manual Skill
 
-给 AI 编程助手的通用 Skill：从源码注释生成**自更新的单文件 HTML 代码手册**——文件树 + 每文件「作用/功能」+ 搜索 + 符号级源码懒加载高亮，改完代码重跑脚本即刷新
+给 AI 编程助手的通用 Skill：从源码注释生成**自更新的 HTML 代码手册**——文件树 + 每文件「作用/功能」+ 搜索 + 完整源码高亮，双击直开无需服务器，改完代码重跑脚本即刷新
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![最近提交](https://img.shields.io/github/last-commit/yschdxm/code-manual)](https://github.com/yschdxm/code-manual/commits/master)
@@ -22,7 +22,7 @@
 
 ## 描述
 
-- **是什么**：一个可安装到 Claude Code 等 Agent 的 Skill。安装后对 AI 说一句「给这个项目做一个代码手册」，它就写好幂等生成脚本、产出单文件手册、并把「改完代码必须重跑」的纪律固化进项目
+- **是什么**：一个可安装到 Claude Code 等 Agent 的 Skill。安装后对 AI 说一句「给这个项目做一个代码手册」，它就写好幂等生成脚本、产出双击直开的手册（HTML + 旁路源码数据两个文件）、并把「改完代码必须重跑」的纪律固化进项目
 - **解决什么问题**：手写文档必然腐烂——代码改了文档没改，比没有文档更误导；这个 Skill 把手册变成**构建产物**，随代码一键再生成
 
 ## 快速开始
@@ -43,7 +43,7 @@
 
 - **Skill 格式**：YAML frontmatter（`name` + 触发式 `description`）+ Markdown 流程正文
 - **生成器**：Python 3 标准库（`ast` 解析 docstring、`json` 内嵌数据、`pathlib` 扫描），无第三方依赖
-- **手册前端**：零依赖单文件 HTML/CSS/JS——多级树、搜索联动、按行区间 `fetch` 源码并轻量高亮
+- **手册前端**：HTML/CSS/JS——多级树、搜索联动、详情页直接展示完整源码并高亮；源码经旁路 `CODE-MANUAL.sources.js` 以 `<script src>` 动态链接，`file://` 双击直开、无需服务器
 - **安全**：内嵌 JSON 先转义 `<`（防 `</script>` 提前闭合），所有 HTML 插值统一走 `esc()`
 
 ## 快速安装
@@ -53,7 +53,7 @@
 
 ## 架构（概述）
 
-Skill 文档层（指导 Agent 执行七阶段流程）与 `template.py` 生成器层（扫描源码 → 注入转义 JSON → 渲染单文件 HTML）分离；手册只存 `src`/`ln` 指针，源码运行时按需加载。
+Skill 文档层（指导 Agent 执行七阶段流程）与 `template.py` 生成器层（扫描源码 → 注入转义 JSON + 旁路源码数据 → 渲染手册）分离；完整源码由旁路 `.sources.js` 动态链接，HTML 本体保持轻量。
 
 ## 项目结构
 

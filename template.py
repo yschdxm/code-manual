@@ -8,11 +8,12 @@
 数据契约(HTML shell 与语言无关,只换扫描器):
   { "generated": "...",
     "groups": { "<组名>": [
-      {"path","src","lines","role":[...],
-       "syms":[{"kind","name","doc","ln":[起,止]}]} ] } }
-  src = 相对手册文件的源码路径;ln = 符号行区间。
-  源码本体**不嵌入手册**——前端按 ln 动态 fetch 后切片高亮;
-  file:// 下 fetch 受限时降级为源文件直链。
+      {"path","lines","role":[...],"syms":[{"kind","name","doc"}]} ] } }
+
+源码本体不进 HTML:生成旁路数据文件 CODE-MANUAL.sources.js
+(window.__SOURCES__,键为 "组名:相对路径"),HTML 用 <script src> 动态链接
+——file:// 双击直开、无需服务器,详情页直接展示完整源码并高亮;
+两个文件一起提交。详情页功能区只列符号描述,不逐个塞代码。
 
 语言适配:本模板内置 Python(ast)扫描器。其他语言把 scan_file() 换成
 「文件头注释 + 顶层符号」正则方案即可——参考 StoryForge(Dart)先例:
@@ -25,7 +26,6 @@
 """
 import ast
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -46,10 +46,9 @@ STRINGS = {
         "search_ph": "搜索文件 / 目录 / 类 / 函数 / 功能关键词…",
         "empty_hint": "在左侧展开文件树选择文件,或直接搜索。",
         "meta": "{n} 文件 · 生成于 {t}",
-        "code_show": "代码 ▾", "code_hide": "代码 ▴", "lines": "行",
-        "fetch_fail": ("无法动态加载源码(浏览器以 file:// 打开时通常禁止本地 fetch)。",
-                       "直接打开源文件", ",或在项目根运行 ",
-                       " 后经 http 访问本手册以获得高亮源码。"),
+        "lines": "行",
+        "source": "源码",
+        "no_src": "源码数据缺失:需要 CODE-MANUAL.sources.js 与手册放在同一目录。",
         "what": "这个文件是什么",
         "no_role": "文件头无注释。",
         "funcs": "当前实现的功能({n} 个顶层符号)",
@@ -61,10 +60,9 @@ STRINGS = {
         "search_ph": "Search files / dirs / classes / functions / keywords…",
         "empty_hint": "Expand the file tree on the left, or just search.",
         "meta": "{n} files · generated {t}",
-        "code_show": "code ▾", "code_hide": "code ▴", "lines": "lines",
-        "fetch_fail": ("Cannot load source dynamically (browsers block local fetch under file://).",
-                       "Open the raw source file", ", or run ",
-                       " from the project root and open this manual over http for highlighted code."),
+        "lines": "lines",
+        "source": "Source",
+        "no_src": "Source data missing: CODE-MANUAL.sources.js must sit next to the manual.",
         "what": "What this file is",
         "no_role": "No file-header comment.",
         "funcs": "Functions implemented ({n} top-level symbols)",
@@ -75,7 +73,7 @@ STRINGS = {
 
 
 def scan_file(path: Path, base: Path):
-    """Python 扫描器:文件头 docstring = role;顶层类/函数 = syms(带行区间)。"""
+    """Python 扫描器:文件头 docstring = role;顶层类/函数 = syms。附带全文供 sidecar。"""
     try:
         text = path.read_text(encoding="utf-8-sig", errors="replace")
         tree = ast.parse(text)
@@ -91,30 +89,36 @@ def scan_file(path: Path, base: Path):
         else:
             continue
         first = next((l.strip() for l in doc.splitlines() if l.strip()), "")
-        end = getattr(node, "end_lineno", None) or node.lineno
         syms.append({"kind": kind, "name": node.name,
-                     "doc": [first] if first else [], "ln": [node.lineno, end]})
+                     "doc": [first] if first else []})
         if len(syms) >= MAX_SYMS:
             break
     return {
         "path": str(path.relative_to(base)).replace("\\", "/"),
-        "src": os.path.relpath(path, OUT.parent).replace("\\", "/"),
         "lines": text.count("\n") + 1,
         "role": [l.strip() for l in role if l.strip()],
         "syms": syms,
+        "_text": text,  # 仅收集期使用,写入 DATA 前由 collect() 剥离
     }
 
 
 def collect():
-    groups = {}
+    groups, sources = {}, {}
     for label, base in SRC_GROUPS.items():
         if not base.exists():
             continue
         files = sorted(p for p in base.rglob("*")
                        if p.suffix in (".py", ".ts", ".tsx", ".dart", ".rs")
                        and not any(s in str(p) for s in EXCLUDE_SUBSTR))
-        groups[label] = [e for f in files if (e := scan_file(f, base))]
-    return groups
+        entries = []
+        for f in files:
+            e = scan_file(f, base)
+            if not e:
+                continue
+            sources[f"{label}:{e['path']}"] = e.pop("_text")
+            entries.append(e)
+        groups[label] = entries
+    return groups, sources
 
 
 HTML = r"""<!doctype html>
@@ -166,18 +170,13 @@ HTML = r"""<!doctype html>
   .sym code { color:var(--ok); font-family:ui-monospace,Menlo,monospace; font-size:12.5px; }
   .sym .k { color:var(--dim); font-size:11px; margin-right:8px; }
   .sym .d { color:var(--dim); font-size:12.5px; margin-left:8px; }
-  .cl { color:var(--accent); font-size:11px; margin-left:8px; cursor:pointer;
-        user-select:none; }
-  .cl:hover { text-decoration:underline; }
   .codebox { margin:6px 0 4px; }
   .codebox pre { background:var(--panel2); border:1px solid var(--border);
                  border-radius:8px; padding:10px 12px; overflow:auto;
-                 max-height:420px; margin:0; }
+                 max-height:70vh; margin:0; }
   .codebox code { font:12.5px/1.55 ui-monospace,Menlo,monospace; }
   .hl-k { color:#c792ea; } .hl-s { color:#c3e88d; }
   .hl-c { color:#5c6773; font-style:italic; } .hl-n { color:#f78c6c; }
-  .codebox .hint { color:var(--dim); font-size:12.5px; }
-  .codebox .hint a { color:var(--accent); }
   .empty { color:var(--dim); margin-top:40px; }
   footer { color:var(--dim); font-size:11px; padding:24px; }
   @media (max-width:700px) { main { flex-direction:column; } #tree { width:100%; height:40vh; } }
@@ -192,6 +191,7 @@ HTML = r"""<!doctype html>
   <nav id="tree"></nav>
   <section id="detail"><div class="empty">__EMPTY_HINT__</div></section>
 </main>
+<script src="__SOURCES_SRC__"></script>
 <script>
 const DATA = __DATA__;
 const L = __L__;
@@ -264,22 +264,7 @@ function render() {
   });
 }
 
-// ---- 源码懒加载:只存行区间指针,按需 fetch 动态加载 ----
-const srcCache = new Map();
-async function fetchSrc(rel) {
-  if (srcCache.has(rel)) return srcCache.get(rel);
-  try {
-    const r = await fetch(rel);
-    if (!r.ok) throw new Error(r.status);
-    const t = await r.text();
-    srcCache.set(rel, t);
-    return t;
-  } catch (e) {
-    srcCache.set(rel, null);
-    return null;
-  }
-}
-
+// ---- 完整源码:读旁路数据文件 __SOURCES__(<script src> 动态链接,file:// 可用) ----
 function langOf(path) {
   if (path.endsWith('.py')) return 'python';
   if (/\.(ts|tsx|js|jsx|mjs)$/.test(path)) return 'ts';
@@ -311,23 +296,11 @@ function highlight(code, lang) {
   return out + esc(code.slice(last));
 }
 
-async function toggleCode(el) {
-  const box = el.parentElement.querySelector('.codebox');
-  if (!box.hidden) { box.hidden = true; el.textContent = L.code_show; return; }
-  el.textContent = '…';
-  const rel = el.dataset.rel;
-  const text = await fetchSrc(rel);
-  if (text == null) {
-    box.innerHTML = '<div class="hint">' + L.fetch_fail[0] +
-      '<a href="' + esc(rel) + '">' + L.fetch_fail[1] + '</a>' + L.fetch_fail[2] +
-      '<code>python -m http.server</code>' + L.fetch_fail[3] + '</div>';
-  } else {
-    const lines = text.split(/\r?\n/);
-    const slice = lines.slice(+el.dataset.a - 1, +el.dataset.b).join('\n');
-    box.innerHTML = '<pre><code>' + highlight(slice, langOf(rel)) + '</code></pre>';
-  }
-  box.hidden = false;
-  el.textContent = L.code_hide;
+// 高亮结果按 key 缓存,反复选中同文件不重算
+const hlCache = new Map();
+function highlightCached(key, code, lang) {
+  if (!hlCache.has(key)) hlCache.set(key, highlight(code, lang));
+  return hlCache.get(key);
 }
 
 function show(key) {
@@ -360,13 +333,15 @@ function show(key) {
   if (!f.syms.length) html += '<div class="empty">' + L.no_syms + '</div>';
   for (const s of f.syms) {
     html += '<div class="sym"><span class="k">' + esc(s.kind) + '</span><code>' + esc(s.name) + '</code>' +
-      (s.doc && s.doc[0] ? '<span class="d">' + esc(s.doc[0]) + '</span>' : '') +
-      '<span class="cl" data-rel="' + esc(f.src) + '" data-a="' + s.ln[0] + '" data-b="' + s.ln[1] + '">' +
-      L.code_show + '</span><div class="codebox" hidden></div></div>';
+      (s.doc && s.doc[0] ? '<span class="d">' + esc(s.doc[0]) + '</span>' : '') + '</div>';
   }
+  // 完整源码:来自旁路数据文件 __SOURCES__(<script src> 动态链接,file:// 可用)
+  html += '<h3>' + L.source + '</h3>';
+  const raw = (window.__SOURCES__ || {})[key];
+  if (raw == null) html += '<div class="empty">' + L.no_src + '</div>';
+  else html += '<div class="codebox"><pre><code>' +
+    highlightCached(key, raw, langOf(rel)) + '</code></pre></div>';
   detailEl.innerHTML = html;
-  detailEl.querySelectorAll('.cl').forEach(el =>
-    el.addEventListener('click', () => toggleCode(el)));
 }
 
 // 搜索:命中文件保留并自动展开祖先目录,其余隐藏;清空恢复默认折叠
@@ -427,20 +402,28 @@ def main():
     if UI_LANG not in STRINGS:
         raise SystemExit(f"UI_LANG 必须是 {tuple(STRINGS)},当前:{UI_LANG!r}")
     s = STRINGS[UI_LANG]
-    groups = collect()
+    groups, sources = collect()
     data = {"generated": datetime.now().strftime("%Y-%m-%d %H:%M"), "groups": groups}
     # 安全铁律:内嵌 JSON 转义 <,防源码注释中的 </script> 提前闭合脚本块
     esc_json = lambda o: json.dumps(o, ensure_ascii=False).replace("<", "\\u003c")
+    # 旁路源码数据:外链 JS(file:// 下 <script src> 可用),键 "组名:相对路径"
+    sources_out = OUT.with_name(OUT.stem + ".sources.js")
     html = (HTML.replace("__DATA__", esc_json(data))
                 .replace("__L__", esc_json(s))
+                .replace("__SOURCES_SRC__", sources_out.name)
                 .replace("__TITLE__", s["title"])
                 .replace("__SEARCH_PH__", s["search_ph"])
                 .replace("__EMPTY_HINT__", s["empty_hint"])
                 .replace("__FOOTER__", s["footer"]))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding="utf-8")
+    sources_out.write_text(
+        "window.__SOURCES__ = " + json.dumps(sources, ensure_ascii=False) + ";",
+        encoding="utf-8")
     total = sum(len(v) for v in groups.values())
-    print(f"OK {OUT} ({OUT.stat().st_size // 1024} KB, {total} files, lang={UI_LANG})")
+    print(f"OK {OUT} + {sources_out.name} "
+          f"({OUT.stat().st_size // 1024}+{sources_out.stat().st_size // 1024} KB, "
+          f"{total} files, lang={UI_LANG})")
 
 
 if __name__ == "__main__":
