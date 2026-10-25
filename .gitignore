@@ -1,0 +1,12 @@
+﻿# 开发与测试产物(不入库)
+.test/
+.test-fixture*/
+
+# 生成的手册(安装到各项目后由各自生成,本仓库不携带)
+CODE-MANUAL.html
+
+# 系统噪声
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
