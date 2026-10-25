@@ -41,17 +41,21 @@ The process is distilled from real practice on the StoryForge project, including
 
 ## Install
 
-Copy the prompt below to your AI coding assistant (Claude Code, etc.) and it will do the installation for you:
+Copy the prompt below to your AI coding assistant (Claude Code, etc.) and it will do the installation for you (English version):
 
-> Please install the "Code Manual" skill for me: clone https://github.com/yschdxm/code-manual into a temporary directory, copy `template.py` and the skill file for the chosen language into `~/.claude/skills/code-manual/` (or `<project root>/.claude/skills/code-manual/` if I only want it for the current project), then delete the temporary directory. Language rule: **Chinese version by default**, i.e. `SKILL.md` from the repo root; if I want the English version instead, take `SKILL.en.md` and **rename it to `SKILL.md`** (the standard skill format only recognizes that filename). When done, confirm to me which version was installed and where.
+```text
+Please install the "Code Manual" skill for me: clone https://github.com/yschdxm/code-manual into a temporary directory, copy SKILL.en.md from the repo root as SKILL.md (the standard skill filename) together with template.py into ~/.claude/skills/code-manual/ (or <project root>/.claude/skills/code-manual/ if I only want it for the current project), then delete the temporary directory. When done, confirm the install path to me.
+```
 
-For the English version, replace "Chinese version by default, i.e. `SKILL.md` from the repo root" in the prompt with "use the English version: `SKILL.en.md`, renamed to `SKILL.md`".
+To install the Chinese version (the repo default), use the prompt from the [Chinese README](README.md).
 
 ## Usage
 
-Once installed, in any project say:
+Once installed, in any project say to the AI:
 
-> Create a code manual for this project
+```text
+Create a code manual for this project
+```
 
 The skill runs the full seven-stage process automatically (create generator → sample verification → check gitignore → three-layer discipline binding → commit → security self-check → UX baseline). After that, following the discipline, the AI re-runs after every code change:
 

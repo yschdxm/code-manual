@@ -41,17 +41,21 @@
 
 ## 安装
 
-把下面这段提示词复制给你的 AI 编程助手（Claude Code 等），它会替你完成安装：
+把下面这段提示词复制给你的 AI 编程助手（Claude Code 等），它会替你完成安装（中文版，本仓库默认）：
 
-> 请帮我安装「Code Manual」这个 Skill：克隆 https://github.com/yschdxm/code-manual 到临时目录，把 `template.py` 和语言对应的那个 skill 文件复制到 `~/.claude/skills/code-manual/`（如果我只想要当前项目生效，就放 `<项目根>/.claude/skills/code-manual/`），然后删掉临时目录。语言规则：**默认中文版**，即仓库根的 `SKILL.md`；如果我要英文版，取 `SKILL.en.md` 并**重命名为 `SKILL.md`**（技能的标准格式只认这个文件名）。装完向我确认装的是哪一版、装在了哪个路径。
+```text
+请帮我安装「Code Manual」这个 Skill：克隆 https://github.com/yschdxm/code-manual 到临时目录，把仓库根的 SKILL.md 和 template.py 复制到 ~/.claude/skills/code-manual/（如果只想要当前项目生效，就放 <项目根>/.claude/skills/code-manual/），然后删掉临时目录。装完向我确认装的路径。
+```
 
-要英文版，把提示词里的「默认中文版，即仓库根的 `SKILL.md`」换成「用英文版 `SKILL.en.md`，重命名为 `SKILL.md`」即可。
+要装英文版请用 [English README](README.en.md) 里的提示词。
 
 ## 使用
 
-安装后，在任意项目里说：
+安装后，在任意项目里对 AI 说：
 
-> 给这个项目做一个代码手册 / Create a code manual for this project
+```text
+给这个项目做一个代码手册
+```
 
 Skill 会自动完成全部七阶段流程（建生成器 → 抽样验证 → 查 gitignore → 三重纪律固化 → 提交 → 安全自查 → UX 基线）。之后每次改完代码，AI 会按纪律重跑：
 
