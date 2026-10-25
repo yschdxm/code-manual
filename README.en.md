@@ -39,19 +39,13 @@ The process is distilled from real practice on the StoryForge project, including
 - **Language-agnostic**: ships with a Python (`ast`) scanner; swap the scanner for other languages (the template comments include the Dart precedent)
 - **Safe**: source comments cannot inject scripts through the manual (JSON `<` escaping + `esc()` on all interpolations)
 
-## Install (instructions for agents)
+## Install
 
-Agent reading this: install this skill into the user's skills directory. Unlike typical projects, **Chinese is the default here and English is the copy** — take the file matching the user's language and **name it in the standard format `SKILL.md`**:
+Copy the prompt below to your AI coding assistant (Claude Code, etc.) and it will do the installation for you:
 
-- User wants **Chinese (default)**: take `SKILL.md` from the repo root
-- User wants **English**: take `SKILL.en.md` and **rename it to `SKILL.md`** when copying (the standard format only recognizes this name)
+> Please install the "Code Manual" skill for me: clone https://github.com/yschdxm/code-manual into a temporary directory, copy `template.py` and the skill file for the chosen language into `~/.claude/skills/code-manual/` (or `<project root>/.claude/skills/code-manual/` if I only want it for the current project), then delete the temporary directory. Language rule: **Chinese version by default**, i.e. `SKILL.md` from the repo root; if I want the English version instead, take `SKILL.en.md` and **rename it to `SKILL.md`** (the standard skill format only recognizes that filename). When done, confirm to me which version was installed and where.
 
-The install action (complete it with whichever tools fit; no need to copy any command verbatim): place the chosen language's skill file together with `template.py` from the same directory into the skills directory, so the target files are `SKILL.md` and `template.py`:
-
-- Global install (all projects): `~/.claude/skills/code-manual/`
-- Project-level install (this project only): `<project root>/.claude/skills/code-manual/`
-
-When the user has not stated a language, **default to the Chinese version**. After installing, report back to the user: which version was installed, the install path, and that the English version requires `UI_LANG = "en"` in the template.
+For the English version, replace "Chinese version by default, i.e. `SKILL.md` from the repo root" in the prompt with "use the English version: `SKILL.en.md`, renamed to `SKILL.md`".
 
 ## Usage
 

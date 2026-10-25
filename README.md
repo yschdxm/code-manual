@@ -39,19 +39,13 @@
 - **语言无关**：内置 Python（ast）扫描器，其他语言换扫描器即可（模板注释含 Dart 先例）
 - **安全**：源码注释无法通过手册注入脚本（JSON `<` 转义 + 全插值 `esc()`）
 
-## 安装（给 Agent 的说明）
+## 安装
 
-读到这里的 Agent：请把本 Skill 安装到用户的技能目录。本仓库与通常项目不同——**默认是中文版，英文是副本**，请按用户要使用的语言取对应文件，并**以标准格式 `SKILL.md` 命名**：
+把下面这段提示词复制给你的 AI 编程助手（Claude Code 等），它会替你完成安装：
 
-- 用户要**中文版（默认）**：取仓库根的 `SKILL.md`
-- 用户要**英文版**：取 `SKILL.en.md`，复制时**重命名为 `SKILL.md`**（标准格式只认这个名字）
+> 请帮我安装「Code Manual」这个 Skill：克隆 https://github.com/yschdxm/code-manual 到临时目录，把 `template.py` 和语言对应的那个 skill 文件复制到 `~/.claude/skills/code-manual/`（如果我只想要当前项目生效，就放 `<项目根>/.claude/skills/code-manual/`），然后删掉临时目录。语言规则：**默认中文版**，即仓库根的 `SKILL.md`；如果我要英文版，取 `SKILL.en.md` 并**重命名为 `SKILL.md`**（技能的标准格式只认这个文件名）。装完向我确认装的是哪一版、装在了哪个路径。
 
-安装动作（自己选合适的工具完成即可，不必逐字照抄）：把所选语言的 skill 文件与同目录的 `template.py` 一起放进技能目录，目标文件名为 `SKILL.md` 与 `template.py`：
-
-- 全局安装（所有项目可用）：`~/.claude/skills/code-manual/`
-- 项目级安装（仅当前项目）：`<项目根>/.claude/skills/code-manual/`
-
-用户没有明确说语言时**默认按中文版**安装。安装完成后向用户复述：装的是哪个版本、装到了哪个路径、英文版使用时模板需设 `UI_LANG = "en"`。
+要英文版，把提示词里的「默认中文版，即仓库根的 `SKILL.md`」换成「用英文版 `SKILL.en.md`，重命名为 `SKILL.md`」即可。
 
 ## 使用
 
