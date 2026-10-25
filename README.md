@@ -39,43 +39,19 @@
 - **语言无关**：内置 Python（ast）扫描器，其他语言换扫描器即可（模板注释含 Dart 先例）
 - **安全**：源码注释无法通过手册注入脚本（JSON `<` 转义 + 全插值 `esc()`）
 
-## 安装（给 Agent 的命令）
+## 安装（给 Agent 的说明）
 
-本仓库与通常项目不同：**默认是中文版，英文是副本**。安装时选择语言，并把所选文件**重命名为标准格式 `SKILL.md`**。
+读到这里的 Agent：请把本 Skill 安装到用户的技能目录。本仓库与通常项目不同——**默认是中文版，英文是副本**，请按用户要使用的语言取对应文件，并**以标准格式 `SKILL.md` 命名**：
 
-### 中文版（默认）
+- 用户要**中文版（默认）**：取仓库根的 `SKILL.md`
+- 用户要**英文版**：取 `SKILL.en.md`，复制时**重命名为 `SKILL.md`**（标准格式只认这个名字）
 
-```bash
-git clone --depth 1 https://github.com/yschdxm/code-manual.git /tmp/code-manual-skill
-mkdir -p ~/.claude/skills/code-manual
-cp /tmp/code-manual-skill/SKILL.md ~/.claude/skills/code-manual/SKILL.md
-cp /tmp/code-manual-skill/template.py ~/.claude/skills/code-manual/template.py
-rm -rf /tmp/code-manual-skill
-```
+安装动作（自己选合适的工具完成即可，不必逐字照抄）：把所选语言的 skill 文件与同目录的 `template.py` 一起放进技能目录，目标文件名为 `SKILL.md` 与 `template.py`：
 
-### English version
+- 全局安装（所有项目可用）：`~/.claude/skills/code-manual/`
+- 项目级安装（仅当前项目）：`<项目根>/.claude/skills/code-manual/`
 
-```bash
-git clone --depth 1 https://github.com/yschdxm/code-manual.git /tmp/code-manual-skill
-mkdir -p ~/.claude/skills/code-manual
-cp /tmp/code-manual-skill/SKILL.en.md ~/.claude/skills/code-manual/SKILL.md   # rename to standard SKILL.md
-cp /tmp/code-manual-skill/template.py ~/.claude/skills/code-manual/template.py
-rm -rf /tmp/code-manual-skill
-```
-
-安装英文版后，把模板适配到项目时记得设 `UI_LANG = "en"`，生成的手册界面即为英文。
-
-Windows（PowerShell）等价命令：
-
-```powershell
-git clone --depth 1 https://github.com/yschdxm/code-manual.git $env:TEMP\code-manual-skill
-New-Item -ItemType Directory -Force ~/.claude/skills/code-manual | Out-Null
-Copy-Item $env:TEMP\code-manual-skill\SKILL.md     ~/.claude/skills/code-manual\SKILL.md     # 中文版;英文版改拷 SKILL.en.md
-Copy-Item $env:TEMP\code-manual-skill\template.py  ~/.claude\skills\code-manual\template.py
-Remove-Item $env:TEMP\code-manual-skill -Recurse -Force
-```
-
-安装到项目级（仅当前项目生效）时，把 `~/.claude/skills/code-manual/` 换成 `<项目>/.claude/skills/code-manual/` 即可。
+用户没有明确说语言时**默认按中文版**安装。安装完成后向用户复述：装的是哪个版本、装到了哪个路径、英文版使用时模板需设 `UI_LANG = "en"`。
 
 ## 使用
 

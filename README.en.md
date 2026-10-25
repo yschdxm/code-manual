@@ -39,43 +39,19 @@ The process is distilled from real practice on the StoryForge project, including
 - **Language-agnostic**: ships with a Python (`ast`) scanner; swap the scanner for other languages (the template comments include the Dart precedent)
 - **Safe**: source comments cannot inject scripts through the manual (JSON `<` escaping + `esc()` on all interpolations)
 
-## Install (commands for agents)
+## Install (instructions for agents)
 
-Unlike typical projects, **Chinese is the default here and English is the copy**. Pick a language at install time and **rename the chosen file to the standard `SKILL.md`**.
+Agent reading this: install this skill into the user's skills directory. Unlike typical projects, **Chinese is the default here and English is the copy** — take the file matching the user's language and **name it in the standard format `SKILL.md`**:
 
-### Chinese version (default)
+- User wants **Chinese (default)**: take `SKILL.md` from the repo root
+- User wants **English**: take `SKILL.en.md` and **rename it to `SKILL.md`** when copying (the standard format only recognizes this name)
 
-```bash
-git clone --depth 1 https://github.com/yschdxm/code-manual.git /tmp/code-manual-skill
-mkdir -p ~/.claude/skills/code-manual
-cp /tmp/code-manual-skill/SKILL.md ~/.claude/skills/code-manual/SKILL.md
-cp /tmp/code-manual-skill/template.py ~/.claude/skills/code-manual/template.py
-rm -rf /tmp/code-manual-skill
-```
+The install action (complete it with whichever tools fit; no need to copy any command verbatim): place the chosen language's skill file together with `template.py` from the same directory into the skills directory, so the target files are `SKILL.md` and `template.py`:
 
-### English version
+- Global install (all projects): `~/.claude/skills/code-manual/`
+- Project-level install (this project only): `<project root>/.claude/skills/code-manual/`
 
-```bash
-git clone --depth 1 https://github.com/yschdxm/code-manual.git /tmp/code-manual-skill
-mkdir -p ~/.claude/skills/code-manual
-cp /tmp/code-manual-skill/SKILL.en.md ~/.claude/skills/code-manual/SKILL.md   # rename to standard SKILL.md
-cp /tmp/code-manual-skill/template.py ~/.claude/skills/code-manual/template.py
-rm -rf /tmp/code-manual-skill
-```
-
-After installing the English version, set `UI_LANG = "en"` when adapting the template to a project so the generated manual's UI is English.
-
-Windows (PowerShell) equivalents:
-
-```powershell
-git clone --depth 1 https://github.com/yschdxm/code-manual.git $env:TEMP\code-manual-skill
-New-Item -ItemType Directory -Force ~/.claude/skills/code-manual | Out-Null
-Copy-Item $env:TEMP\code-manual-skill\SKILL.md     ~/.claude\skills\code-manual\SKILL.md     # Chinese; for English copy SKILL.en.md instead
-Copy-Item $env:TEMP\code-manual-skill\template.py  ~/.claude\skills\code-manual\template.py
-Remove-Item $env:TEMP\code-manual-skill -Recurse -Force
-```
-
-For project-level install (only this project), replace `~/.claude/skills/code-manual/` with `<project>/.claude/skills/code-manual/`.
+When the user has not stated a language, **default to the Chinese version**. After installing, report back to the user: which version was installed, the install path, and that the English version requires `UI_LANG = "en"` in the template.
 
 ## Usage
 
