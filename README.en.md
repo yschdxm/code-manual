@@ -39,13 +39,25 @@ An installable agent skill for any project. Once installed, just tell the AI "cr
 
 ## Install
 
+Copy the prompt below to your AI coding assistant (English version) and it will install the skill for you:
+
+```text
+Please install the "Code Manual" skill, English version: first try `npx -y code-manual-skill@latest --lang en` (add `--project` to install only in the current project); if npx is unavailable, clone https://github.com/yschdxm/code-manual and copy SKILL.en.md from the repo root as SKILL.md together with template.py into ~/.claude/skills/code-manual/ (project-level install: <project root>/.claude/skills/code-manual/). When done, confirm the install path to me.
+```
+
+To install the Chinese version (the repo default), use the prompt from the [Chinese README](README.md).
+
+### Manual install (alternative)
+
+You can also run the commands yourself; **upgrading = re-running the same command** (`@latest` always fetches the newest version and overwrites the old copy):
+
 ```bash
 npx -y code-manual-skill@latest             # Chinese (default) -> ~/.claude/skills/code-manual/
 npx -y code-manual-skill@latest --lang en   # English (SKILL.en.md renamed to SKILL.md)
 npx -y code-manual-skill@latest --project   # project level only -> ./.claude/skills/code-manual/
 ```
 
-Installing needs only Node 18+, not Python (Python is used later when a target project generates its manual). **Upgrading = re-running the same command**: `@latest` always fetches the newest version and overwrites the old copy; for a permanent install use `npm i -g code-manual-skill`, then `npm update -g code-manual-skill && code-manual-skill` on upgrades.
+For a permanent install use `npm i -g code-manual-skill`, then `npm update -g code-manual-skill && code-manual-skill` on upgrades. Installing needs only Node 18+, not Python (Python is used later when a target project generates its manual).
 
 After installing, start a new session and make sure the skill list shows `code-manual`.
 

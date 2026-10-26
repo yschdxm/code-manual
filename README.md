@@ -27,13 +27,25 @@
 
 ## 快速开始
 
+把下面这段提示词复制给你的 AI 编程助手（中文版，本仓库默认），它会自己完成安装：
+
+```text
+请帮我安装「Code Manual」skill：优先运行 npx -y code-manual-skill@latest（只装当前项目就加 --project）；如果 npx 不可用，就克隆 https://github.com/yschdxm/code-manual，把仓库根的 SKILL.md 和 template.py 复制到 ~/.claude/skills/code-manual/（项目级安装放 <项目根>/.claude/skills/code-manual/）。装完向我确认安装路径。
+```
+
+要装英文版，用 [English README](README.en.md) 里的提示词。
+
+### 手动安装（备选）
+
+也可以自己跑命令，以后**升级 = 重跑同一条命令**（`@latest` 每次取最新版并覆盖旧副本）：
+
 ```bash
 npx -y code-manual-skill@latest             # 中文版(默认) → ~/.claude/skills/code-manual/
 npx -y code-manual-skill@latest --lang en   # 英文版(SKILL.en.md 重命名为 SKILL.md)
 npx -y code-manual-skill@latest --project   # 只装到当前项目 → ./.claude/skills/code-manual/
 ```
 
-安装只需 Node 18+，不需要 Python（Python 只在目标项目生成手册时用到）。**升级 = 重跑同一条命令**：`@latest` 每次取最新版并覆盖旧副本；想常驻用 `npm i -g code-manual-skill`，升级时执行 `npm update -g code-manual-skill && code-manual-skill`。
+常驻安装用 `npm i -g code-manual-skill`，升级时 `npm update -g code-manual-skill && code-manual-skill`。安装只需 Node 18+，不需要 Python（Python 只在目标项目生成手册时用到）。
 
 装完重启会话，确认技能列表出现 `code-manual`，然后在任意项目里说：
 
