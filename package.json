@@ -1,0 +1,43 @@
+{
+  "name": "code-manual-skill",
+  "version": "0.1.0",
+  "description": "Agent skill that generates a self-updating single-file HTML code manual: file tree, per-file purpose, implemented features, lazily highlighted source. Installs SKILL.md + template.py into your agent's skills directory.",
+  "type": "module",
+  "bin": {
+    "code-manual-skill": "bin/install.mjs"
+  },
+  "files": [
+    "bin/",
+    "SKILL.md",
+    "SKILL.en.md",
+    "template.py",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepublishOnly": "node -e \"for (const f of ['SKILL.md','SKILL.en.md','template.py','bin/install.mjs']) require('fs').accessSync(f)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yschdxm/code-manual.git"
+  },
+  "homepage": "https://github.com/yschdxm/code-manual#readme",
+  "bugs": {
+    "url": "https://github.com/yschdxm/code-manual/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "agent-skill",
+    "skills",
+    "code-manual",
+    "code-documentation",
+    "documentation",
+    "ai-agent"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

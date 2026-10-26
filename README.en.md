@@ -39,13 +39,15 @@ An installable agent skill for any project. Once installed, just tell the AI "cr
 
 ## Install
 
-Copy the prompt below to your AI coding assistant (Claude Code, etc.) and it will do the installation for you (English version):
-
-```text
-Please install the "Code Manual" skill for me: clone https://github.com/yschdxm/code-manual into a temporary directory, copy SKILL.en.md from the repo root as SKILL.md (the standard skill filename) together with template.py into ~/.claude/skills/code-manual/ (or <project root>/.claude/skills/code-manual/ if I only want it for the current project), then delete the temporary directory. When done, confirm the install path to me.
+```bash
+npx -y code-manual-skill@latest             # Chinese (default) -> ~/.claude/skills/code-manual/
+npx -y code-manual-skill@latest --lang en   # English (SKILL.en.md renamed to SKILL.md)
+npx -y code-manual-skill@latest --project   # project level only -> ./.claude/skills/code-manual/
 ```
 
-To install the Chinese version (the repo default), use the prompt from the [Chinese README](README.md).
+Installing needs only Node 18+, not Python (Python is used later when a target project generates its manual). **Upgrading = re-running the same command**: `@latest` always fetches the newest version and overwrites the old copy; for a permanent install use `npm i -g code-manual-skill`, then `npm update -g code-manual-skill && code-manual-skill` on upgrades.
+
+After installing, start a new session and make sure the skill list shows `code-manual`.
 
 ## Usage
 
@@ -72,12 +74,15 @@ python tool/gen_code_manual.py
 
 ```
 code-manual/
+├── package.json      # npm package code-manual-skill
+├── bin/install.mjs   # npx installer (zero-dep, --lang / --project)
 ├── SKILL.md          # Chinese skill (default)
 ├── SKILL.en.md       # English skill (copy; rename to SKILL.md on install)
 ├── template.py       # Bilingual generator template (HTML shell + Python ast scanner + UI_LANG)
 ├── README.md         # Chinese readme
 ├── README.en.md      # This file (English)
 ├── LICENSE           # MIT
+├── .github/workflows # tag push -> auto publish to npm + GitHub Release
 └── .github/assets/   # Sponsor QR codes
 ```
 

@@ -1,0 +1,49 @@
+# Publish to npm + create a GitHub Release whenever a v* tag is pushed.
+#
+# Auth: npm Trusted Publishing (OIDC) — NO npm token or secret is stored in this repo.
+# One-time setup (after the FIRST publish, which needs a granular token once):
+#   npmjs.com -> code-manual-skill -> Settings -> Trusted publishing
+#   provider GitHub Actions: owner yschdxm, repo code-manual, workflow publish.yml
+# Requires: npm >= 11.5.1 (we install the latest), node >= 22.14, hosted runner.
+#   (npm docs: docs.npmjs.com/trusted-publishers — first publish from the trusted
+#    workflow must succeed within 2 days of configuring, or the trust expires.)
+name: publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write   # gh release create
+  id-token: write   # OIDC token for npm trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Use npm >= 11.5.1 (required for OIDC trusted publishing)
+        run: npm install -g npm@latest
+
+      - name: Tag must match package.json version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::tag v$TAG does not match package.json version $PKG"
+            exit 1
+          fi
+
+      - name: Publish to npm (trusted publishing — no token)
+        run: npm publish --access public
+
+      - name: Create GitHub Release with generated notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes

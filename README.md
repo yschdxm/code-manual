@@ -27,13 +27,15 @@
 
 ## 快速开始
 
-把安装提示词复制给你的 AI 编程助手（中文版，本仓库默认）：
-
-```text
-请帮我安装「Code Manual」这个 Skill：克隆 https://github.com/yschdxm/code-manual 到临时目录，把仓库根的 SKILL.md 和 template.py 复制到 ~/.claude/skills/code-manual/（如果只想要当前项目生效，就放 <项目根>/.claude/skills/code-manual/），然后删掉临时目录。装完向我确认装的路径。
+```bash
+npx -y code-manual-skill@latest             # 中文版(默认) → ~/.claude/skills/code-manual/
+npx -y code-manual-skill@latest --lang en   # 英文版(SKILL.en.md 重命名为 SKILL.md)
+npx -y code-manual-skill@latest --project   # 只装到当前项目 → ./.claude/skills/code-manual/
 ```
 
-要装英文版请用 [English README](README.en.md) 里的提示词。安装后在任意项目里说：
+安装只需 Node 18+，不需要 Python（Python 只在目标项目生成手册时用到）。**升级 = 重跑同一条命令**：`@latest` 每次取最新版并覆盖旧副本；想常驻用 `npm i -g code-manual-skill`，升级时执行 `npm update -g code-manual-skill && code-manual-skill`。
+
+装完重启会话，确认技能列表出现 `code-manual`，然后在任意项目里说：
 
 ```text
 给这个项目做一个代码手册
@@ -46,11 +48,6 @@
 - **手册前端**：HTML/CSS/JS——多级树、搜索联动、详情页直接展示完整源码并高亮；源码经旁路 `CODE-MANUAL.sources.js` 以 `<script src>` 动态链接，`file://` 双击直开、无需服务器
 - **安全**：内嵌 JSON 先转义 `<`（防 `</script>` 提前闭合），所有 HTML 插值统一走 `esc()`
 
-## 快速安装
-
-1. 复制上面的提示词给 Agent（或手动把 `SKILL.md` + `template.py` 放进 `~/.claude/skills/code-manual/`，英文版用 `SKILL.en.md` 重命名为 `SKILL.md`）
-2. 重启会话，确认技能列表出现 `code-manual`
-
 ## 架构（概述）
 
 Skill 文档层（指导 Agent 执行七阶段流程）与 `template.py` 生成器层（扫描源码 → 注入转义 JSON + 旁路源码数据 → 渲染手册）分离；完整源码由旁路 `.sources.js` 动态链接，HTML 本体保持轻量。
@@ -59,12 +56,15 @@ Skill 文档层（指导 Agent 执行七阶段流程）与 `template.py` 生成�
 
 ```
 code-manual/
+├── package.json      # npm 包 code-manual-skill
+├── bin/install.mjs   # npx 安装器(零依赖,支持 --lang / --project)
 ├── SKILL.md          # 中文版 Skill(默认)
 ├── SKILL.en.md       # 英文副本(安装时重命名为 SKILL.md)
 ├── template.py       # 双语生成器模板
 ├── README.md         # 本文件
 ├── README.en.md      # 英文版 README
 ├── LICENSE           # MIT
+├── .github/workflows # push tag 自动发 npm + Release
 └── .github/assets/   # 赞助收款码
 ```
 

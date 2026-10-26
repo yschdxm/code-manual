@@ -11,3 +11,7 @@ CODE-MANUAL.sources.js
 Thumbs.db
 __pycache__/
 *.pyc
+
+# npm
+node_modules/
+package-lock.json
